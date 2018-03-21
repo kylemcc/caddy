@@ -225,7 +225,12 @@ Attempts:
 	for attempts := 0; attempts < 2; attempts++ {
 		namesObtaining.Add([]string{name})
 		acmeMu.Lock()
+		oldNS := acme.RecursiveNameservers
+		if len(c.config.DNSResolvers) > 0 {
+			acme.RecursiveNameservers = c.config.DNSResolvers
+		}
 		certificate, failures := c.acmeClient.ObtainCertificate([]string{name}, true, nil, c.config.MustStaple)
+		acme.RecursiveNameservers = oldNS
 		acmeMu.Unlock()
 		namesObtaining.Remove([]string{name})
 		if len(failures) > 0 {
@@ -308,7 +313,13 @@ func (c *ACMEClient) Renew(name string) error {
 	for attempts := 0; attempts < 2; attempts++ {
 		namesObtaining.Add([]string{name})
 		acmeMu.Lock()
+		acmeMu.Lock()
+		oldNS := acme.RecursiveNameservers
+		if len(c.config.DNSResolvers) > 0 {
+			acme.RecursiveNameservers = c.config.DNSResolvers
+		}
 		newCertMeta, err = c.acmeClient.RenewCertificate(certMeta, true, c.config.MustStaple)
+		acme.RecursiveNameservers = oldNS
 		acmeMu.Unlock()
 		namesObtaining.Remove([]string{name})
 		if err == nil {

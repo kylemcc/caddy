@@ -110,6 +110,13 @@ type Config struct {
 	// to use when solving the ACME DNS challenge
 	DNSProvider string
 
+	// The nameservers lego/acme should use for any DNS queries,
+	// such as those made by acme.FindZoneByFqdn or the default
+	// acme.PreCheckDNS implementation. If DNSResolvers is not
+	// empty, it will acme.RecursiveNameservers will be set to
+	// DNSResolvers.
+	DNSResolvers []string
+
 	// The email address to use when creating or
 	// using an ACME account (fun fact: if this
 	// is set to "off" then this config will not

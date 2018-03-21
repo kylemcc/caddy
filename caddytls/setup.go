@@ -21,6 +21,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"net"
 	"net/url"
 	"os"
 	"path/filepath"
@@ -187,6 +188,18 @@ func setupTLS(c *caddy.Controller) error {
 					return c.Errf("Unsupported DNS provider '%s'", args[0])
 				}
 				config.DNSProvider = args[0]
+			case "dns_resolvers":
+				args := c.RemainingArgs()
+				if len(args) < 1 {
+					return c.ArgErr()
+				}
+				for _, arg := range args {
+					if _, _, err := net.SplitHostPort(arg); err != nil {
+						config.DNSResolvers = append(config.DNSResolvers, net.JoinHostPort(arg, "53"))
+					} else {
+						config.DNSResolvers = append(config.DNSResolvers, arg)
+					}
+				}
 			case "storage":
 				args := c.RemainingArgs()
 				if len(args) != 1 {
